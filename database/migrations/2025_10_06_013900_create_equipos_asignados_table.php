@@ -26,6 +26,7 @@ return new class extends Migration
                   ->constrained('usuario')
                   ->onDelete('cascade');
             $table->enum('estado', ['activo', 'devuelto', 'perdido'])->default('activo');
+            $table->text('ip_equipo');
             $table->timestamps();
         });
     }
