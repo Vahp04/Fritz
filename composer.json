@@ -1,18 +1,11 @@
 {
     "require": {
         "php": "^8.1",
+        "laravel/framework": "^11.0",
         "ext-pdo": "*",
         "ext-pgsql": "*",
         "ext-mbstring": "*",
         "ext-xml": "*",
-        "ext-json": "*",
-        "ext-curl": "*"
-    },
-    "scripts": {
-        "post-install-cmd": [
-            "php artisan config:cache",
-            "php artisan route:cache",
-            "php artisan view:cache"
-        ]
+        "ext-json": "*"
     }
 }
