@@ -37,14 +37,17 @@ class EquipoAsignadoController extends Controller
         
         return view('equipos_asignados.create', compact('usuarios', 'stock_equipos'));
     }
-
+    
 public function store(Request $request)
 {
+    $stockEquipo = stock_equipos::with('tipoEquipo')->find($request->stock_equipos_id);
+    $requiereIP = $stockEquipo->tipoEquipo->requiere_ip ?? true;
+
     $validator = Validator::make($request->all(), [
         'usuarios_id' => 'required|exists:usuarios,id',
         'stock_equipos_id' => 'required|exists:stock_equipos,id',
         'fecha_asignacion' => 'required|date',
-        'ip_equipo' => 'nullable|ip',
+        'ip_equipo' => $requiereIP ? 'required|ip' : 'nullable|ip', // Cambio aquí
         'fecha_devolucion' => 'nullable|date|after_or_equal:fecha_asignacion',
         'observaciones' => 'nullable|string|max:500',
         'estado' => 'required|in:activo,devuelto,obsoleto' 
@@ -607,4 +610,114 @@ public function update(Request $request, $id)
                            ->with('error', 'Error al cargar el PDF: ' . $e->getMessage());
         }
     }
+
+    /**
+ * Generar PDF de equipos asignados por usuario específico
+ */
+public function generarPdfPorUsuario($usuarioId)
+{
+    try {
+        // Obtener el usuario
+        $usuario = Usuarios::with(['sede', 'departamento'])->find($usuarioId);
+        
+        if (!$usuario) {
+            return redirect()->route('equipos_asignados.index')
+                ->with('error', 'Usuario no encontrado.');
+        }
+
+        // Obtener equipos asignados al usuario
+        $equiposAsignados = EquipoAsignado::with([
+            'stock_equipo.tipoEquipo',
+            'usuario'
+        ])
+        ->where('usuarios_id', $usuarioId)
+        ->orderBy('estado')
+        ->orderBy('fecha_asignacion', 'desc')
+        ->get();
+
+        // Estadísticas
+        $totalEquipos = $equiposAsignados->count();
+        $equiposActivos = $equiposAsignados->where('estado', 'activo')->count();
+        $equiposDevueltos = $equiposAsignados->where('estado', 'devuelto')->count();
+        $equiposObsoletos = $equiposAsignados->where('estado', 'obsoleto')->count();
+
+        $data = [
+            'usuario' => $usuario,
+            'equiposAsignados' => $equiposAsignados,
+            'fechaGeneracion' => now()->timezone('America/Caracas')->format('d/m/Y H:i:s'),
+            'totalEquipos' => $totalEquipos,
+            'equiposActivos' => $equiposActivos,
+            'equiposDevueltos' => $equiposDevueltos,
+            'equiposObsoletos' => $equiposObsoletos,
+        ];
+
+        $pdf = PDF::loadView('equipoA.pdf-usuario', $data)
+                 ->setPaper('A4', 'portrait')
+                 ->setOption('defaultFont', 'sans-serif');
+
+        $nombreArchivo = 'Equipos_Asignados_' . str_replace(' ', '_', $usuario->nombre) . '_' . now()->timezone('America/Caracas')->format('Y-m-d') . '.pdf';
+
+        return $pdf->download($nombreArchivo);
+
+    } catch (\Exception $e) {
+        \Log::error('Error generando PDF por usuario: ' . $e->getMessage());
+        return redirect()->route('equipos_asignados.index')
+                       ->with('error', 'Error al generar el PDF: ' . $e->getMessage());
+    }
+}
+
+/**
+ * Ver PDF de equipos por usuario en el navegador
+ */
+public function verPdfPorUsuario($usuarioId)
+{
+    try {
+        // Obtener el usuario
+        $usuario = Usuarios::with(['sede', 'departamento'])->find($usuarioId);
+        
+        if (!$usuario) {
+            return redirect()->route('equipos_asignados.index')
+                ->with('error', 'Usuario no encontrado.');
+        }
+
+        // Obtener equipos asignados al usuario
+        $equiposAsignados = EquipoAsignado::with([
+            'stock_equipo.tipoEquipo',
+            'usuario'
+        ])
+        ->where('usuarios_id', $usuarioId)
+        ->orderBy('estado')
+        ->orderBy('fecha_asignacion', 'desc')
+        ->get();
+
+        // Estadísticas
+        $totalEquipos = $equiposAsignados->count();
+        $equiposActivos = $equiposAsignados->where('estado', 'activo')->count();
+        $equiposDevueltos = $equiposAsignados->where('estado', 'devuelto')->count();
+        $equiposObsoletos = $equiposAsignados->where('estado', 'obsoleto')->count();
+
+        $data = [
+            'usuario' => $usuario,
+            'equiposAsignados' => $equiposAsignados,
+            'fechaGeneracion' => now()->timezone('America/Caracas')->format('d/m/Y H:i:s'),
+            'totalEquipos' => $totalEquipos,
+            'equiposActivos' => $equiposActivos,
+            'equiposDevueltos' => $equiposDevueltos,
+            'equiposObsoletos' => $equiposObsoletos,
+        ];
+
+        $pdf = PDF::loadView('equipoA.pdf-usuario', $data)
+                 ->setPaper('A4', 'portrait')
+                 ->setOption('defaultFont', 'sans-serif');
+
+        $nombreArchivo = 'Equipos_Asignados_' . str_replace(' ', '_', $usuario->nombre) . '_' . now()->timezone('America/Caracas')->format('Y-m-d') . '.pdf';
+
+        return $pdf->stream($nombreArchivo);
+
+    } catch (\Exception $e) {
+        \Log::error('Error viendo PDF por usuario: ' . $e->getMessage());
+        return redirect()->route('equipos_asignados.index')
+                       ->with('error', 'Error al cargar el PDF: ' . $e->getMessage());
+    }
+}
 }

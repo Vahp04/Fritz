@@ -11,9 +11,14 @@ class tipo_equipo extends Model
 
    protected $fillable = [
     'nombre',
-    'descripcion'
+    'descripcion',
+    'requiere_ip',
+   
    ];
+   protected $casts = [
+        'requiere_ip' => 'boolean' 
+    ];
    public function stockEquipo(){
-    return $this->hasMany(stock_equipos::class);
+    return $this->hasMany(stock_equipos::class, 'tipo_equipo_id');
    }
 }

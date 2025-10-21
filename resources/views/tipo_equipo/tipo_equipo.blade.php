@@ -428,6 +428,7 @@
                                         <th width="50px">ID</th>
                                         <th>Tipo de Equipo</th>
                                         <th>Descripción</th>
+                                        <th>Requiere IP</th>
                                         <th>Equipos en Stock</th>
                                         <th>Fecha de Registro</th>
                                         <th width="120px" class="text-center">Acciones</th>
@@ -459,6 +460,13 @@
                                                     <i class="bi bi-card-text me-1"></i>
                                                     Sin descripción
                                                 </span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($tipo->requiere_ip)
+                                                <span class="badge bg-success">Sí</span>
+                                            @else
+                                                <span class="badge bg-secondary">No</span>
                                             @endif
                                         </td>
                                         <td>
@@ -502,85 +510,104 @@
         </div>
     </div>
 
-    <!-- Modal para Crear Tipo de Equipo -->
-    <div class="modal fade" id="createTipoEquipoModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title">
-                        <i class="bi bi-laptop me-2"></i> Nuevo Tipo de Equipo
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <form action="{{ route('tipo_equipo.store') }}" method="POST" id="createTipoEquipoForm">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Nombre del Tipo*</label>
-                                    <input type="text" class="form-control" name="nombre" required placeholder="Ingrese el nombre del tipo">
-                                    <small class="text-muted">Ej: Laptop, Desktop, Impresora, Servidor, etc.</small>
-                                </div>
+  <!-- Modal para Crear Tipo de Equipo -->
+<div class="modal fade" id="createTipoEquipoModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-laptop me-2"></i> Nuevo Tipo de Equipo
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('tipo_equipo.store') }}" method="POST" id="createTipoEquipoForm">
+                @csrf
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Nombre del Tipo*</label>
+                                <input type="text" class="form-control" name="nombre" required placeholder="Ingrese el nombre del tipo">
+                                <small class="text-muted">Ej: Laptop, Desktop, Impresora, Servidor, etc.</small>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Descripción</label>
-                                    <textarea class="form-control" name="descripcion" rows="3" placeholder="Ingrese una descripción del tipo de equipo"></textarea>
-                                    <small class="text-muted">Descripción opcional del tipo de equipo</small>
-                                </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Descripción</label>
+                                <textarea class="form-control" name="descripcion" rows="3" placeholder="Ingrese una descripción del tipo de equipo"></textarea>
+                                <small class="text-muted">Descripción opcional del tipo de equipo</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">¿Requiere dirección IP?</label>
+                                <select class="form-select" name="requiere_ip" required>
+                                    <option value="1">Sí (Computadoras, Servidores, etc.)</option>
+                                    <option value="0">No (Mouse, Teclado, Accesorios, etc.)</option>
+                                </select>
+                                <small class="text-muted">Seleccione "No" para equipos que no necesiten dirección IP</small>
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-fritz">Guardar Tipo</button>
-                    </div>
-                </form>
-            </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-fritz">Guardar Tipo</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
-    <!-- Modal para Editar Tipo de Equipo -->
-    <div class="modal fade" id="editTipoEquipoModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-warning text-white">
-                    <h5 class="modal-title">
-                        <i class="bi bi-pencil-square me-2"></i> Editar Tipo de Equipo
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <form id="editTipoEquipoForm" method="POST">
-                    @csrf
-                    @method('PUT')
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Nombre del Tipo*</label>
-                                    <input type="text" class="form-control" name="nombre" id="edit_nombre" required>
-                                    <small class="text-muted">Ej: Laptop, Desktop, Impresora, Servidor, etc.</small>
-                                </div>
+   <!-- Modal para Editar Tipo de Equipo -->
+<div class="modal fade" id="editTipoEquipoModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-pencil-square me-2"></i> Editar Tipo de Equipo
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editTipoEquipoForm" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Nombre del Tipo*</label>
+                                <input type="text" class="form-control" name="nombre" id="edit_nombre" required>
+                                <small class="text-muted">Ej: Laptop, Desktop, Impresora, Servidor, etc.</small>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Descripción</label>
-                                    <textarea class="form-control" name="descripcion" id="edit_descripcion" rows="3"></textarea>
-                                    <small class="text-muted">Descripción opcional del tipo de equipo</small>
-                                </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Descripción</label>
+                                <textarea class="form-control" name="descripcion" id="edit_descripcion" rows="3"></textarea>
+                                <small class="text-muted">Descripción opcional del tipo de equipo</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">¿Requiere dirección IP?</label>
+                                <select class="form-select" name="requiere_ip" id="edit_requiere_ip" required>
+                                    <option value="1">Sí (Computadoras, Servidores, etc.)</option>
+                                    <option value="0">No (Mouse, Teclado, Accesorios, etc.)</option>
+                                </select>
+                                <small class="text-muted">Seleccione "No" para equipos que no necesiten dirección IP</small>
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-warning">Actualizar Tipo</button>
-                    </div>
-                </form>
-            </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning">Actualizar Tipo</button>
+                </div>
+            </form>
         </div>
     </div>
-
+</div>
     <!-- Modal para Ver Tipo de Equipo -->
     <div class="modal fade" id="viewTipoEquipoModal" tabindex="-1">
         <div class="modal-dialog">
@@ -620,6 +647,10 @@
                             <strong>Última Actualización:</strong>
                             <p id="view_updated" class="mb-2"></p>
                         </div>
+                        <div class="col-6">
+                            <strong>Requiere IP:</strong>
+                            <p id="view_requiere_ip" class="mb-2"></p>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -636,28 +667,34 @@
     <script>
         // Función para cargar datos en el modal de edición
         function loadTipoEquipoData(tipo) {
-            document.getElementById('editTipoEquipoForm').action = `/tipo_equipo/${tipo.id}`;
-            document.getElementById('edit_nombre').value = tipo.nombre;
-            document.getElementById('edit_descripcion').value = tipo.descripción || '';
-        }
+    document.getElementById('editTipoEquipoForm').action = `/tipo_equipo/${tipo.id}`;
+    document.getElementById('edit_nombre').value = tipo.nombre;
+    document.getElementById('edit_descripcion').value = tipo.descripción || '';
+    document.getElementById('edit_requiere_ip').value = tipo.requiere_ip ? '1' : '0';
+}
 
         // Función para cargar datos en el modal de visualización
-        function viewTipoEquipoData(tipo) {
-            document.getElementById('view_icon').textContent = tipo.nombre.charAt(0).toUpperCase();
-            document.getElementById('view_nombre').textContent = tipo.nombre;
-            document.getElementById('view_id').textContent = `ID: ${tipo.id}`;
-            document.getElementById('view_tipo_id').textContent = tipo.id;
-            document.getElementById('view_descripcion').textContent = tipo.descripción || 'Sin descripción';
-            document.getElementById('view_stock_count').innerHTML = tipo.stock_equipo_count ? 
-                `<span class="badge stock-badge">${tipo.stock_equipo_count} Equipos</span>` : 
-                '<span class="badge bg-secondary">0 Equipos</span>';
-            document.getElementById('view_created').textContent = new Date(tipo.created_at).toLocaleDateString('es-ES');
-            document.getElementById('view_updated').textContent = new Date(tipo.updated_at).toLocaleDateString('es-ES');
-            
-            // Mostrar el modal
-            $('#viewTipoEquipoModal').modal('show');
-           
-        }
+function viewTipoEquipoData(tipo) {
+    document.getElementById('view_icon').textContent = tipo.nombre.charAt(0).toUpperCase();
+    document.getElementById('view_nombre').textContent = tipo.nombre;
+    document.getElementById('view_id').textContent = `ID: ${tipo.id}`;
+    document.getElementById('view_tipo_id').textContent = tipo.id;
+    document.getElementById('view_descripcion').textContent = tipo.descripción || 'Sin descripción';
+    document.getElementById('view_stock_count').innerHTML = tipo.stock_equipo_count ? 
+        `<span class="badge stock-badge">${tipo.stock_equipo_count} Equipos</span>` : 
+        '<span class="badge bg-secondary">0 Equipos</span>';
+    
+    // Mostrar información de requiere IP
+    const requiereIP = tipo.requiere_ip ? 
+        '<span class="badge bg-success">Requiere IP</span>' : 
+        '<span class="badge bg-secondary">No requiere IP</span>';
+    document.getElementById('view_requiere_ip').innerHTML = requiereIP;
+    
+    document.getElementById('view_created').textContent = new Date(tipo.created_at).toLocaleDateString('es-ES');
+    document.getElementById('view_updated').textContent = new Date(tipo.updated_at).toLocaleDateString('es-ES');
+    
+    $('#viewTipoEquipoModal').modal('show');
+}
 
         // Función para confirmar eliminación
         function confirmDelete(tipoId, tipoName) {

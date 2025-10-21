@@ -537,7 +537,17 @@
                 <i class="bi bi-eye me-2"></i>Ver PDF Asignaciones
             </a>
         </li>
+
+         <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item" href="#" onclick="abrirModalSeleccionUsuario()">
+                            <i class="bi bi-person me-2"></i>PDF por Usuario
+                        </a>
+                    </li>
+
+                    
     </ul>
+    
 </div>
                         </div>
                     </div>
@@ -676,6 +686,42 @@
                                         </td>
                                     </tr>
                                     @endforeach
+
+                                    <!-- Modal para seleccionar usuario para PDF -->
+<div class="modal fade" id="seleccionUsuarioModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-person me-2"></i> Generar PDF por Usuario
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Seleccione un usuario:</label>
+                    <select class="form-select" id="usuarioSeleccionado">
+                        <option value="">Seleccione un usuario</option>
+                        @foreach($usuarios as $usuario)
+                            <option value="{{ $usuario->id }}">
+                                {{ $usuario->nombre }} {{ $usuario->apellido }} - {{ $usuario->cargo }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="generarPDFUsuarioSeleccionado()">
+                    <i class="bi bi-download me-1"></i> Descargar PDF
+                </button>
+                <button type="button" class="btn btn-info text-white" onclick="verPDFUsuarioSeleccionado()">
+                    <i class="bi bi-eye me-1"></i> Ver PDF
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
                                 </tbody>
                             </table>
                         </div>
@@ -713,14 +759,17 @@
 <div class="col-md-6">
     <div class="mb-3">
         <label class="form-label">Equipo*</label>
-        <select class="form-select" name="stock_equipos_id" required>
+        <select class="form-select" name="stock_equipos_id" id="create_stock_equipos_id" required>
             <option value="">Seleccione un equipo</option>
             @foreach($stock_equipos as $equipo) 
-                <option value="{{ $equipo->id }}">{{ $equipo->marca }} {{ $equipo->modelo }} ({{ $equipo->cantidad_disponible }} disp.)</option>
+                <option value="{{ $equipo->id }}" 
+                        data-requiere-ip="{{ $equipo->tipoEquipo->requiere_ip ?? 1 }}">
+                    {{ $equipo->marca }} {{ $equipo->modelo }} ({{ $equipo->cantidad_disponible }} disp.)
+                </option>
             @endforeach
         </select>
     </div>
-</div>                           <div class="col-md-6">
+</div>                       <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Fecha de Asignación*</label>
                                     <input type="date" class="form-control" name="fecha_asignacion" required value="{{ date('Y-m-d') }}">
@@ -797,7 +846,10 @@
         <select class="form-select" name="stock_equipos_id" id="edit_stock_equipos_id" required>
             <option value="">Seleccione un equipo</option>
             @foreach($stock_equipos as $equipo)  
-                <option value="{{ $equipo->id }}">{{ $equipo->marca }} {{ $equipo->modelo }} ({{ $equipo->cantidad_disponible }} disp.)</option>
+                <option value="{{ $equipo->id }}" 
+                        data-requiere-ip="{{ $equipo->tipoEquipo->requiere_ip ?? 1 }}">
+                    {{ $equipo->marca }} {{ $equipo->modelo }} ({{ $equipo->cantidad_disponible }} disp.)
+                </option>
             @endforeach
         </select>
     </div>
@@ -916,8 +968,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <script>
-        // Función para cargar datos en el modal de edición
-        function loadEquipoAsignadoData(button) {
+    // Función para cargar datos en el modal de edición
+function loadEquipoAsignadoData(button) {
     const id = button.getAttribute('data-id');
     document.getElementById('editEquipoAsignadoForm').action = `/equipos_asignados/${id}`;
     document.getElementById('edit_usuarios_id').value = button.getAttribute('data-usuario');
@@ -927,10 +979,51 @@
     document.getElementById('edit_ip_equipo').value = button.getAttribute('data-ip');
     document.getElementById('edit_fecha_devolucion').value = button.getAttribute('data-devolucion');
     document.getElementById('edit_observaciones').value = button.getAttribute('data-observaciones');
+    
+    // Aplicar toggle del campo IP después de cargar los datos
+    setTimeout(() => {
+        const editSelect = document.getElementById('edit_stock_equipos_id');
+        if (editSelect && editSelect.value) {
+            toggleIPFieldBasedOnSelection(editSelect, true);
+        }
+    }, 100);
 }
 
-        // Función para cargar datos en el modal de visualización 
-    function viewEquipoAsignadoData(asignacion) {
+// Función para toggle del campo IP basado en data attribute
+function toggleIPFieldBasedOnSelection(selectElement, isEditModal = false) {
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    const requiereIP = selectedOption.getAttribute('data-requiere-ip') === '1';
+    
+    console.log('Toggle IP Field:', {
+        selectedValue: selectElement.value,
+        requiereIP: requiereIP,
+        isEditModal: isEditModal
+    });
+    
+    // Determinar qué campo IP usar según el modal
+    let ipField, ipLabel;
+    if (isEditModal) {
+        ipField = document.getElementById('edit_ip_equipo');
+        ipLabel = ipField ? ipField.closest('.mb-3') : null;
+    } else {
+        ipField = document.querySelector('[name="ip_equipo"]');
+        ipLabel = ipField ? ipField.closest('.mb-3') : null;
+    }
+    
+    if (ipField && ipLabel) {
+        if (requiereIP) {
+            ipLabel.style.display = 'block';
+            ipField.required = true;
+        } else {
+            ipLabel.style.display = 'none';
+            ipField.value = ''; // Limpiar el valor cuando se oculta
+            ipField.required = false;
+        }
+    }
+}
+
+// Función para cargar datos en el modal de visualización 
+function viewEquipoAsignadoData(asignacion) {
     console.log('=== DEBUG ASIGNACIÓN ===');
     console.log('Asignación completa:', asignacion);
     console.log('Usuario relación:', asignacion.usuarios);
@@ -1008,40 +1101,38 @@
     
     // Mostrar el modal
     $('#viewEquipoAsignadoModal').modal('show');
-    
 }
 
-        // Función para devolver equipo
-        function devolverEquipo(asignacionId) {
-            Swal.fire({
-                title: '¿Estás seguro?',
-                text: '¿Deseas marcar este equipo como devuelto?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#28a745',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Sí, devolver',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                   
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = `/equipos_asignados/${asignacionId}/devolver`;
-                    
-                    const csrfToken = document.createElement('input');
-                    csrfToken.type = 'hidden';
-                    csrfToken.name = '_token';
-                    csrfToken.value = '{{ csrf_token() }}';
-                    
-                    form.appendChild(csrfToken);
-                    document.body.appendChild(form);
-                    form.submit();
-                }
-            });
+// Función para devolver equipo
+function devolverEquipo(asignacionId) {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: '¿Deseas marcar este equipo como devuelto?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sí, devolver',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/equipos_asignados/${asignacionId}/devolver`;
+            
+            const csrfToken = document.createElement('input');
+            csrfToken.type = 'hidden';
+            csrfToken.name = '_token';
+            csrfToken.value = '{{ csrf_token() }}';
+            
+            form.appendChild(csrfToken);
+            document.body.appendChild(form);
+            form.submit();
         }
+    });
+}
 
-        // Función para confirmar eliminación
+// Función para confirmar eliminación
 function confirmDelete(asignacionId, asignacionName) {
     Swal.fire({
         title: '¿Estás seguro?',
@@ -1084,9 +1175,10 @@ function confirmDelete(asignacionId, asignacionName) {
     });
 }
 
-
+// Inicialización cuando el documento está listo
 $(document).ready(function() {
     
+    // Filtros de la tabla
     function applyFilters() {
         const nameFilter = $('#searchName').val().toLowerCase();
         const equipoFilter = $('#searchEquipo').val().toLowerCase();
@@ -1119,7 +1211,7 @@ $(document).ready(function() {
         $('#resultCount').text(`Mostrando ${visibleRows} de ${totalRows} registros`);
     }
 
-    // Event listeners - CORREGIDOS
+    // Event listeners para filtros
     $('#searchName').on('input', applyFilters);
     $('#searchEquipo').on('input', applyFilters);
     $('#filterEstado').change(applyFilters);
@@ -1133,30 +1225,90 @@ $(document).ready(function() {
 
     // Inicializar
     updateResultCount();
+
+    // Event listeners para los selects de equipos
+    document.getElementById('create_stock_equipos_id')?.addEventListener('change', function() {
+        toggleIPFieldBasedOnSelection(this, false);
+    });
+
+    document.getElementById('edit_stock_equipos_id')?.addEventListener('change', function() {
+        toggleIPFieldBasedOnSelection(this, true);
+    });
+
+    // Para cuando se abre el modal de edición
+    $('#editEquipoAsignadoModal').on('show.bs.modal', function() {
+        setTimeout(() => {
+            const editSelect = document.getElementById('edit_stock_equipos_id');
+            if (editSelect && editSelect.value) {
+                toggleIPFieldBasedOnSelection(editSelect, true);
+            }
+        }, 100);
+    });
+
+    // Para cuando se abre el modal de crear
+    $('#createEquipoAsignadoModal').on('show.bs.modal', function() {
+        // Resetear el select de crear
+        const createSelect = document.getElementById('create_stock_equipos_id');
+        if (createSelect) {
+            createSelect.value = '';
+            toggleIPFieldBasedOnSelection(createSelect, false);
+        }
+    });
+
+    // Toggle del sidebar
+    $('#sidebarToggle').click(function() {
+        $('.sidebar').toggleClass('sidebar-collapsed');
+        $(this).find('i').toggleClass('bi-chevron-double-left bi-chevron-double-right');
+    });
+
+    // Mobile sidebar toggle
+    $('#mobileSidebarToggle').click(function() {
+        $('.sidebar').toggleClass('sidebar-collapsed');
+    });
+
+    // Cambiar tema
+    $('.theme-switcher').click(function() {
+        $('html').attr('data-bs-theme', 
+            $('html').attr('data-bs-theme') === 'dark' ? 'light' : 'dark');
+        $(this).find('i').toggleClass('bi-moon-stars bi-sun');
+    });
 });
+function abrirModalSeleccionUsuario() {
+    $('#seleccionUsuarioModal').modal('show');
+}
+
+function generarPDFUsuarioSeleccionado() {
+    const usuarioId = document.getElementById('usuarioSeleccionado').value;
+    if (usuarioId) {
+        generarPDFUsuario(usuarioId);
+        $('#seleccionUsuarioModal').modal('hide');
+    } else {
+        Swal.fire('Error', 'Por favor seleccione un usuario', 'error');
+    }
+}
+
+function verPDFUsuarioSeleccionado() {
+    const usuarioId = document.getElementById('usuarioSeleccionado').value;
+    if (usuarioId) {
+        verPDFUsuario(usuarioId);
+        $('#seleccionUsuarioModal').modal('hide');
+    } else {
+        Swal.fire('Error', 'Por favor seleccione un usuario', 'error');
+    }
+}
+
+function generarPDFUsuario(usuarioId) {
+    const url = `/equipos_asignados/usuario/${usuarioId}/pdf`;
+    window.location.href = url;
+}
+
+function verPDFUsuario(usuarioId) {
+    const url = `/equipos_asignados/usuario/${usuarioId}/ver-pdf`;
+    window.open(url, '_blank');
+}
 
 
-         // Toggle del sidebar
-            $('#sidebarToggle').click(function() {
-                $('.sidebar').toggleClass('sidebar-collapsed');
-                $(this).find('i').toggleClass('bi-chevron-double-left bi-chevron-double-right');
-            });
-
-           
-
-            // Mobile sidebar toggle
-            $('#mobileSidebarToggle').click(function() {
-                $('.sidebar').toggleClass('sidebar-collapsed');
-            });
- // Cambiar tema
-            $('.theme-switcher').click(function() {
-                $('html').attr('data-bs-theme', 
-                    $('html').attr('data-bs-theme') === 'dark' ? 'light' : 'dark');
-                $(this).find('i').toggleClass('bi-moon-stars bi-sun');
-            });
-
-
-            function generarPDFAsignaciones() {
+function generarPDFAsignaciones() {
     const url = '{{ route("equipos_asignados.generar-pdf") }}';
     window.location.href = url;
 }

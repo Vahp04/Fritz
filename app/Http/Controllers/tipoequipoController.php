@@ -32,7 +32,8 @@ class TipoEquipoController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|max:255|unique:tipo_equipos',
-            'descripcion' => 'nullable|string'
+            'descripcion' => 'nullable|string',
+            'requiere_ip' => 'required|boolean'
         ]);
 
         if ($validator->fails()) {
@@ -41,7 +42,11 @@ class TipoEquipoController extends Controller
                 ->withInput();
         }
 
-        tipo_equipo::create($request->all());
+        tipo_equipo::create([
+            'nombre' => $request->nombre,
+            'descripcion' => $request->descripcion,
+            'requiere_ip' => $request->requiere_ip
+        ]);
 
         return redirect()->route('tipo_equipo.index')
             ->with('success', 'Tipo de equipo creado exitosamente.');
@@ -70,7 +75,8 @@ class TipoEquipoController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|max:255|unique:tipo_equipos,nombre,' . $tipo_equipo->id,
-            'descripcion' => 'nullable|string'
+            'descripcion' => 'nullable|string',
+            'requiere_ip' => 'required|boolean'
         ]);
 
         if ($validator->fails()) {
@@ -79,7 +85,11 @@ class TipoEquipoController extends Controller
                 ->withInput();
         }
 
-        $tipo_equipo->update($request->all());
+         $tipo_equipo->update([
+            'nombre' => $request->nombre,
+            'descripcion' => $request->descripcion,
+            'requiere_ip' => $request->requiere_ip
+        ]);
 
         return redirect()->route('tipo_equipo.index')
             ->with('success', 'Tipo de equipo actualizado exitosamente.');

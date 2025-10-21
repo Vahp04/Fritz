@@ -73,6 +73,10 @@ Route::prefix('api')->group(function () {
 // Rutas para Equipos_asignados
 Route::get('/equipos_asignados/generar-pdf', [EquipoAsignadoController::class, 'generarPdfAsignaciones'])->name('equipos_asignados.generar-pdf');
 Route::get('/equipos_asignados/ver-pdf', [EquipoAsignadoController::class, 'verPdfAsignaciones'])->name('equipos_asignados.ver-pdf');
+Route::get('/equipos_asignados/usuario/{usuarioId}/pdf', [EquipoAsignadoController::class, 'generarPdfPorUsuario'])
+    ->name('equipos_asignados.pdf.usuario');
+Route::get('/equipos_asignados/usuario/{usuarioId}/ver-pdf', [EquipoAsignadoController::class, 'verPdfPorUsuario'])
+    ->name('equipos_asignados.ver-pdf.usuario');
 Route::resource('equipos_asignados', EquipoAsignadoController::class);
 Route::post('/equipos_asignados/{equipoAsignado}/devolver', [EquipoAsignadoController::class, 'devolver'])
     ->name('equipos_asignados.devolver');

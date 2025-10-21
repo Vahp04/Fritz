@@ -505,19 +505,19 @@
                                     <i class="bi bi-lightning-fill me-2"></i>Acciones Rápidas
                                 </div>
                                 <center></center><div class="card-body">
-                                    <div class="row g-3">
+                                     <div class="row g-3">
                                         <div class="col-md-3">
-                                            <a href="#" class="btn btn-outline-dark w-100 card-body"  style="box-shadow: 2px 0 10px rgba(0, 0, 0, 5);" onclick="generarPDF()">
+                                            <a href="#" class="btn btn-outline-dark w-100 card-body"  style="box-shadow: 2px 0 10px rgba(0, 0, 0, 5);" onclick="verPDF()">
                                                 <i class="bi bi-people me-2"></i>Reporte de Usuarios
                                             </a>
                                         </div>
                                         <div class="col-md-3">
-                                            <a href="#" class="btn btn-outline-dark w-100 card-body" style="box-shadow: 2px 0 10px rgba(0, 0, 0, 5);" onclick="generarPDFStock()" >
+                                            <a href="#" class="btn btn-outline-dark w-100 card-body" style="box-shadow: 2px 0 10px rgba(0, 0, 0, 5);" onclick="verPDFStock()" >
                                                 <i class="bi bi-box me-2"></i>Reporte de Inventario
                                             </a>
                                         </div>
                                         <div class="col-md-3">
-                                            <a href="#" class="btn btn-outline-dark w-100 card-body" style="box-shadow: 2px 0 10px rgba(0, 0, 0, 5);"onclick="generarPDFAsignaciones()">
+                                            <a href="#" class="btn btn-outline-dark w-100 card-body" style="box-shadow: 2px 0 10px rgba(0, 0, 0, 5);"onclick="verPDFAsignaciones()">
                                                 <i class="bi bi-laptop me-2"></i>Reporte de Equipos Asignados
                                             </a>
                                         </div>
@@ -580,21 +580,22 @@ document.getElementById('mobileSidebarToggle').addEventListener('click', functio
             });
 
 
-            function generarPDF() {
-  
-      const url = '{{ route("usuarios.generar-pdf") }}';
-    window.location.href = url;
+          
+function verPDF() {
+    const url = '{{ route("usuarios.ver-pdf") }}';
+    window.open(url, '_blank');
 }
 
-function generarPDFStock() {
-    const url = '{{ route("stock_equipos.generar-pdf") }}';
-    window.location.href = url;
+function verPDFStock() {
+    const url = '{{ route("stock_equipos.ver-pdf") }}';
+    window.open(url, '_blank');
 }
 
-            function generarPDFAsignaciones() {
-    const url = '{{ route("equipos_asignados.generar-pdf") }}';
-    window.location.href = url;
+   function verPDFAsignaciones() {
+    const url = '{{ route("equipos_asignados.ver-pdf") }}';
+    window.open(url, '_blank');
 }
+
     </script>
 
 
