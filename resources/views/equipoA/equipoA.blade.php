@@ -844,7 +844,7 @@
 </div>                       <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Fecha de Asignación*</label>
-                                    <input type="date" class="form-control" name="fecha_asignacion" required value="{{ date('Y-m-d') }}">
+                                    <input type="date" class="form-control" name="fecha_asignacion" required >
                                 </div>
                             </div>
                             <div class="col-md-6">

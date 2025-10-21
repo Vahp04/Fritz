@@ -240,6 +240,18 @@
 .pagination .page-item.disabled .page-link {
     color: #6c757d;
 }
+
+.email-cell {
+    max-width: 200px; /* Ajusta este valor según necesites */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Para que se vea bien en el modal de ver */
+#view_correo {
+    word-break: break-all;
+}
     </style>
 </head>
 <body>
@@ -529,10 +541,10 @@
                                             </span>
                                         </td>
                                         <td>
-                                            <small class="d-block">
-                                                <i class="bi bi-envelope me-1"></i>{{ $usuario->correo }}
-                                            </small>
-                                        </td>
+    <small class="d-block email-cell" title="{{ $usuario->correo }}">
+        <i class="bi bi-envelope me-1"></i>{{ $usuario->correo }}
+    </small>
+</td>
                                         <td>
                                             <div class="d-flex flex-column gap-1">
                                                 <span class="badge sede-badge rounded-pill">
