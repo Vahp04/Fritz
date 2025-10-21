@@ -15,14 +15,14 @@ class UsuariosController extends Controller
      */
     public function index()
 {
-    // Cargar usuarios con sus relaciones y contar equipos asignados ACTIVOS
     $usuarios = Usuarios::with(['sede', 'departamento', 'equiposAsignados'])
-                       ->withCount([
-                           'equiposAsignados as equipos_totales_count',
-                           'equiposAsignadosActivos as equipos_activos_count',
-                           'equiposAsignadosDevueltos as equipos_devueltos_count'
-                       ])
-                       ->get();
+                           ->withCount([
+                               'equiposAsignados as equipos_totales_count',
+                               'equiposAsignadosActivos as equipos_activos_count',
+                               'equiposAsignadosDevueltos as equipos_devueltos_count'
+                           ])
+                           ->orderBy('id', 'asc') 
+                           ->paginate(10); 
     
     $sedes = Sede::all();
     $departamentos = Departamento::all();
@@ -101,7 +101,7 @@ public function show($id)
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+      public function update(Request $request, $id)
     {
         $usuario = Usuarios::findOrFail($id);
 

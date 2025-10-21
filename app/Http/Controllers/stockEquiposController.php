@@ -14,7 +14,8 @@ class StockEquiposController extends Controller
      */
    public function index()
 {
-    $stockEquipos = stock_equipos::with('tipoEquipo')->get();
+    $stockEquipos = stock_equipos::with('tipoEquipo')->orderBy('id', 'asc') 
+            ->paginate(10);
     
     // Calcular stock bajo en el controlador
     $stockBajoCount = $stockEquipos->filter(function($equipo) {

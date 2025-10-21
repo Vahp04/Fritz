@@ -220,6 +220,26 @@
             color: white;
             border: none;
         }
+
+        .pagination .page-link {
+    color: #DC2626;
+    border: 1px solid #dee2e6;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #DC2626;
+    border-color: #DC2626;
+    color: white;
+}
+
+.pagination .page-link:hover {
+    color: #DC2626;
+    background-color: #f8f9fa;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #6c757d;
+}
     </style>
 </head>
 <body>
@@ -567,6 +587,53 @@
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+                </div>
+                                        <!-- Paginación -->
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <div class="text-muted">
+                                Mostrando 
+                                <strong>{{ $usuarios->firstItem() ?: 0 }}</strong> 
+                                a 
+                                <strong>{{ $usuarios->lastItem() ?: 0 }}</strong> 
+                                de 
+                                <strong>{{ $usuarios->total() }}</strong> 
+                                usuarios
+                            </div>
+                            
+                            <nav aria-label="Paginación de usuarios">
+                                <ul class="pagination pagination-sm mb-0">
+                                    <!-- Enlace anterior -->
+                                    <li class="page-item {{ $usuarios->onFirstPage() ? 'disabled' : '' }}">
+                                        <a class="page-link" href="{{ $usuarios->previousPageUrl() }}" aria-label="Anterior">
+                                            <i class="bi bi-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                    
+                                    <!-- Enlaces de páginas -->
+                                    @foreach ($usuarios->getUrlRange(1, $usuarios->lastPage()) as $page => $url)
+                                        @if ($page == $usuarios->currentPage())
+                                            <li class="page-item active">
+                                                <span class="page-link">{{ $page }}</span>
+                                            </li>
+                                        @else
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                            </li>
+                                        @endif
+                                    @endforeach
+                                    
+                                    <!-- Enlace siguiente -->
+                                    <li class="page-item {{ !$usuarios->hasMorePages() ? 'disabled' : '' }}">
+                                        <a class="page-link" href="{{ $usuarios->nextPageUrl() }}" aria-label="Siguiente">
+                                            <i class="bi bi-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                        <!-- Fin Paginación -->
+
                     </div>
                 </div>
             </main>

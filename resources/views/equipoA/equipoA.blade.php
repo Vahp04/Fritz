@@ -250,6 +250,26 @@
             background-color: #d1ecf1 !important;
             border-left: 4px solid #17a2b8;
         }
+
+        .pagination .page-link {
+    color: #DC2626;
+    border: 1px solid #dee2e6;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #DC2626;
+    border-color: #DC2626;
+    color: white;
+}
+
+.pagination .page-link:hover {
+    color: #DC2626;
+    background-color: #f8f9fa;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #6c757d;
+}
     </style>
 </head>
 <body>
@@ -450,44 +470,48 @@
                 @endif
 
                 <!-- Resumen de Asignaciones -->
-                <div class="row mb-4">
-                    <div class="col-md-3">
-                        <div class="card bg-primary text-white">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                   <div>
-                                        <h4 class="mb-0">{{ $equiposAsignados->where('estado', 'activo')->count() }}</h4>
-                                           <small>Asignaciones Activas</small>
-                                  </div>
-                                    <div class="align-self-center">
-                                       <i class="bi bi-laptop fs-3"></i>
-                                   </div>
-                                </div>
-                            </div>
-                        </div>
-                   </div>
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <!-- Contar solo las activas de TODOS los registros -->
+                        <h4 class="mb-0">{{ \App\Models\EquipoAsignado::where('estado', 'activo')->count() }}</h4>
+                        <small>Asignaciones Activas</small>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-laptop fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     
-                            <div class="col-md-3">
-                                <div class="card bg-info text-white">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between">
-                                            <div>
-                                                <h4 class="mb-0">{{ $equiposAsignados->where('estado', 'devuelto')->count() }}</h4>
-                                                    <small>Devueltos</small>
-                                                        </div>
-                                                            <div class="align-self-center">
-                                                                <i class="bi bi-arrow-return-left fs-3"></i>
-                                                            </div>
-                                                        </div>
-                                            </div>
-                                        </div>
-                                    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <!-- Contar solo las devueltas de TODOS los registros -->
+                        <h4 class="mb-0">{{ \App\Models\EquipoAsignado::where('estado', 'devuelto')->count() }}</h4>
+                        <small>Devueltos</small>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-arrow-return-left fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <div class="col-md-3">
         <div class="card bg-warning text-white">
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <h4 class="mb-0">{{ $equiposAsignados->where('estado', 'obsoleto')->count() }}</h4>
+                        <!-- Contar solo las obsoletas de TODOS los registros -->
+                        <h4 class="mb-0">{{ \App\Models\EquipoAsignado::where('estado', 'obsoleto')->count() }}</h4>
                         <small>Obsoletos</small>
                     </div>
                     <div class="align-self-center">
@@ -497,13 +521,14 @@
             </div>
         </div>
     </div>
+    
     <div class="col-md-3">
         <div class="card bg-secondary text-white">
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
                         <!-- TOTAL GENERAL (todos los estados) -->
-                        <h4 class="mb-0">{{ $equiposAsignados->count() }}</h4>
+                        <h4 class="mb-0">{{ \App\Models\EquipoAsignado::count() }}</h4>
                         <small>Total Registros</small>
                     </div>
                     <div class="align-self-center">
@@ -725,6 +750,53 @@
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+                </div>
+                      <!-- Paginación -->
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <div class="text-muted">
+                                Mostrando 
+                                <strong>{{ $equiposAsignados->firstItem() ?: 0 }}</strong> 
+                                a 
+                                <strong>{{ $equiposAsignados->lastItem() ?: 0 }}</strong> 
+                                de 
+                                <strong>{{ $equiposAsignados->total() }}</strong> 
+                                asignaciones
+                            </div>
+                            
+                            <nav aria-label="Paginación de equipos asignados">
+                                <ul class="pagination pagination-sm mb-0">
+                                    <!-- Enlace anterior -->
+                                    <li class="page-item {{ $equiposAsignados->onFirstPage() ? 'disabled' : '' }}">
+                                        <a class="page-link" href="{{ $equiposAsignados->previousPageUrl() }}" aria-label="Anterior">
+                                            <i class="bi bi-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                    
+                                    <!-- Enlaces de páginas -->
+                                    @foreach ($equiposAsignados->getUrlRange(1, $equiposAsignados->lastPage()) as $page => $url)
+                                        @if ($page == $equiposAsignados->currentPage())
+                                            <li class="page-item active">
+                                                <span class="page-link">{{ $page }}</span>
+                                            </li>
+                                        @else
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                            </li>
+                                        @endif
+                                    @endforeach
+                                    
+                                    <!-- Enlace siguiente -->
+                                    <li class="page-item {{ !$equiposAsignados->hasMorePages() ? 'disabled' : '' }}">
+                                        <a class="page-link" href="{{ $equiposAsignados->nextPageUrl() }}" aria-label="Siguiente">
+                                            <i class="bi bi-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                        <!-- Fin Paginación -->
+
                     </div>
                 </div>
             </main>

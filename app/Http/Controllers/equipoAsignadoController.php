@@ -18,7 +18,8 @@ class EquipoAsignadoController extends Controller
         'usuarios', 
         'usuario', 
         'stock_equipo.tipoEquipo' 
-    ])->get();
+    ]) ->orderBy('id', 'asc') 
+        ->paginate(10);
     
     $usuarios = Usuarios::where('activo', true)->get();
     $stock_equipos = stock_equipos::where('cantidad_disponible', '>', 0)
@@ -559,7 +560,7 @@ public function update(Request $request, $id)
     }
 
     /**
-     * Ver PDF de asignaciones en el navegador
+     * Ver PDF de asignaciones 
      */
     public function verPdfAsignaciones()
     {
@@ -612,12 +613,11 @@ public function update(Request $request, $id)
     }
 
     /**
- * Generar PDF de equipos asignados por usuario específico
+ * Generar PDF de equipos asignados por usuario
  */
 public function generarPdfPorUsuario($usuarioId)
 {
     try {
-        // Obtener el usuario
         $usuario = Usuarios::with(['sede', 'departamento'])->find($usuarioId);
         
         if (!$usuario) {
@@ -625,7 +625,6 @@ public function generarPdfPorUsuario($usuarioId)
                 ->with('error', 'Usuario no encontrado.');
         }
 
-        // Obtener equipos asignados al usuario
         $equiposAsignados = EquipoAsignado::with([
             'stock_equipo.tipoEquipo',
             'usuario'
@@ -635,7 +634,6 @@ public function generarPdfPorUsuario($usuarioId)
         ->orderBy('fecha_asignacion', 'desc')
         ->get();
 
-        // Estadísticas
         $totalEquipos = $equiposAsignados->count();
         $equiposActivos = $equiposAsignados->where('estado', 'activo')->count();
         $equiposDevueltos = $equiposAsignados->where('estado', 'devuelto')->count();
@@ -667,12 +665,11 @@ public function generarPdfPorUsuario($usuarioId)
 }
 
 /**
- * Ver PDF de equipos por usuario en el navegador
+ * Ver PDF de equipos por usuario 
  */
 public function verPdfPorUsuario($usuarioId)
 {
     try {
-        // Obtener el usuario
         $usuario = Usuarios::with(['sede', 'departamento'])->find($usuarioId);
         
         if (!$usuario) {
@@ -680,7 +677,6 @@ public function verPdfPorUsuario($usuarioId)
                 ->with('error', 'Usuario no encontrado.');
         }
 
-        // Obtener equipos asignados al usuario
         $equiposAsignados = EquipoAsignado::with([
             'stock_equipo.tipoEquipo',
             'usuario'
@@ -690,7 +686,6 @@ public function verPdfPorUsuario($usuarioId)
         ->orderBy('fecha_asignacion', 'desc')
         ->get();
 
-        // Estadísticas
         $totalEquipos = $equiposAsignados->count();
         $equiposActivos = $equiposAsignados->where('estado', 'activo')->count();
         $equiposDevueltos = $equiposAsignados->where('estado', 'devuelto')->count();

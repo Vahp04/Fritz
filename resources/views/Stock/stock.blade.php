@@ -240,6 +240,26 @@
             font-family: 'Courier New', monospace;
             font-weight: bold;
         }
+
+        .pagination .page-link {
+    color: #DC2626;
+    border: 1px solid #dee2e6;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #DC2626;
+    border-color: #DC2626;
+    color: white;
+}
+
+.pagination .page-link:hover {
+    color: #DC2626;
+    background-color: #f8f9fa;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #6c757d;
+}
     </style>
 </head>
 <body>
@@ -438,68 +458,72 @@
                 @endif
 
                 <!-- Resumen de Stock -->
-                <div class="row mb-4">
-                    <div class="col-md-3">
-                        <div class="card bg-primary text-white">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <h4 class="mb-0">{{ $stockEquipos->sum('cantidad_total') }}</h4>
-                                        <small>Total Equipos</small>
-                                    </div>
-                                    <div class="align-self-center">
-                                        <i class="bi bi-box-seam fs-3"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+  <div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <!-- Contar el total de TODOS los equipos -->
+                        <h4 class="mb-0">{{ \App\Models\stock_equipos::sum('cantidad_total') }}</h4>
+                        <small>Total Equipos</small>
                     </div>
-                    <div class="col-md-3">
-                        <div class="card bg-success text-white">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <h4 class="mb-0">{{ $stockEquipos->sum('cantidad_disponible') }}</h4>
-                                        <small>Disponibles</small>
-                                    </div>
-                                    <div class="align-self-center">
-                                        <i class="bi bi-check-circle fs-3"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-box-seam fs-3"></i>
                     </div>
-                    <div class="col-md-3">
-                        <div class="card bg-info text-white">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <h4 class="mb-0">{{ $stockEquipos->sum('cantidad_asignada') }}</h4>
-                                        <small>Asignados</small>
-                                    </div>
-                                    <div class="align-self-center">
-                                        <i class="bi bi-person-check fs-3"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-  <div class="col-md-3">
-    <div class="card bg-warning text-white">
-        <div class="card-body">
-            <div class="d-flex justify-content-between">
-                <div>
-                    <h4 class="mb-0">{{ $stockBajoCount }}</h4>
-                    <small>Stock Bajo</small>
                 </div>
-                <div class="align-self-center">
-                    <i class="bi bi-exclamation-triangle fs-3"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <!-- Contar el total disponible de TODOS los equipos -->
+                        <h4 class="mb-0">{{ \App\Models\stock_equipos::sum('cantidad_disponible') }}</h4>
+                        <small>Disponibles</small>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-check-circle fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <!-- Contar el total asignado de TODOS los equipos -->
+                        <h4 class="mb-0">{{ \App\Models\stock_equipos::sum('cantidad_asignada') }}</h4>
+                        <small>Asignados</small>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-person-check fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <!-- Usar la variable del controlador que ya cuenta todos los equipos con stock bajo -->
+                        <h4 class="mb-0">{{ $stockBajoCount }}</h4>
+                        <small>Stock Bajo</small>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-exclamation-triangle fs-3"></i>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-                </div>
                 
                 <!-- Stock Equipos Management Card -->
                 <div class="card border-0 shadow mb-4">
@@ -634,6 +658,54 @@
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+                </div>
+
+                 <!-- Paginación -->
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <div class="text-muted">
+                                Mostrando 
+                                <strong>{{ $stockEquipos->firstItem() ?: 0 }}</strong> 
+                                a 
+                                <strong>{{ $stockEquipos->lastItem() ?: 0 }}</strong> 
+                                de 
+                                <strong>{{ $stockEquipos->total() }}</strong> 
+                                equipos
+                            </div>
+                            
+                            <nav aria-label="Paginación de stock de equipos">
+                                <ul class="pagination pagination-sm mb-0">
+                                    <!-- Enlace anterior -->
+                                    <li class="page-item {{ $stockEquipos->onFirstPage() ? 'disabled' : '' }}">
+                                        <a class="page-link" href="{{ $stockEquipos->previousPageUrl() }}" aria-label="Anterior">
+                                            <i class="bi bi-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                    
+                                    <!-- Enlaces de páginas -->
+                                    @foreach ($stockEquipos->getUrlRange(1, $stockEquipos->lastPage()) as $page => $url)
+                                        @if ($page == $stockEquipos->currentPage())
+                                            <li class="page-item active">
+                                                <span class="page-link">{{ $page }}</span>
+                                            </li>
+                                        @else
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                            </li>
+                                        @endif
+                                    @endforeach
+                                    
+                                    <!-- Enlace siguiente -->
+                                    <li class="page-item {{ !$stockEquipos->hasMorePages() ? 'disabled' : '' }}">
+                                        <a class="page-link" href="{{ $stockEquipos->nextPageUrl() }}" aria-label="Siguiente">
+                                            <i class="bi bi-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                        <!-- Fin Paginación -->
+
                     </div>
                 </div>
             </main>
