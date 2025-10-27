@@ -34,7 +34,7 @@
         }
         
         .sidebar-collapsed {
-            width: 80px;
+            width: 85px;
         }
         
         .sidebar-collapsed .sidebar-text {
@@ -214,7 +214,7 @@
             
             <!-- Brand -->
             <div class="text-center mb-4 py-3 border-bottom border-secondary">
-                <center><img src="{{asset('img/logo-fritz-web.webp')}}" alt="logoo"  style="width: 70px; height: 55px;"></center>
+            <center><img src="{{asset('img/logo-fritz-web.webp')}}" alt="logoo"  style="width: 65px; height: 50px;"></center>
                 <h4 class="mb-0 text-white fw-bold sidebar-text">FRITZ C.A</h4>
             <small class="text-white sidebar-text">Sistema de Gestión</small>
             </div>
@@ -587,6 +587,82 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <script>
+    // ===== FUNCIONES UNIVERSALES PARA EL TEMA =====
+    function applySavedTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        const htmlElement = document.documentElement;
+        
+        if (savedTheme) {
+            htmlElement.setAttribute('data-bs-theme', savedTheme);
+            
+            const themeIcon = document.querySelector('.theme-switcher i');
+            if (themeIcon) {
+                if (savedTheme === 'dark') {
+                    themeIcon.classList.remove('bi-moon-stars');
+                    themeIcon.classList.add('bi-sun');
+                } else {
+                    themeIcon.classList.remove('bi-sun');
+                    themeIcon.classList.add('bi-moon-stars');
+                }
+            }
+        } else {
+            localStorage.setItem('theme', 'light');
+        }
+    }
+
+    function toggleTheme() {
+        const htmlElement = document.documentElement;
+        const currentTheme = htmlElement.getAttribute('data-bs-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        const themeIcon = document.querySelector('.theme-switcher i');
+        
+        htmlElement.setAttribute('data-bs-theme', newTheme);
+        
+        if (themeIcon) {
+            if (newTheme === 'dark') {
+                themeIcon.classList.remove('bi-moon-stars');
+                themeIcon.classList.add('bi-sun');
+            } else {
+                themeIcon.classList.remove('bi-sun');
+                themeIcon.classList.add('bi-moon-stars');
+            }
+        }
+        
+        localStorage.setItem('theme', newTheme);
+    }
+
+    // ===== INICIALIZACIÓN =====
+    document.addEventListener('DOMContentLoaded', function() {
+        applySavedTheme();
+        
+        // Sidebar
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function() {
+                const sidebar = document.querySelector('.sidebar');
+                sidebar.classList.toggle('sidebar-collapsed');
+                
+                const icon = this.querySelector('i');
+                icon.classList.toggle('bi-chevron-double-left');
+                icon.classList.toggle('bi-chevron-double-right');
+            });
+        }
+
+        const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+        if (mobileSidebarToggle) {
+            mobileSidebarToggle.addEventListener('click', function() {
+                document.querySelector('.sidebar').classList.toggle('sidebar-collapsed');
+            });
+        }
+
+        // Tema
+        const themeSwitcher = document.querySelector('.theme-switcher');
+        if (themeSwitcher) {
+            themeSwitcher.addEventListener('click', toggleTheme);
+        }
+    });
+
+
         // Función para cargar datos en el modal de edición
         function loadDepartmentData(department) {
             document.getElementById('editDepartmentForm').action = `/departamentos/${department.id}`;
@@ -646,6 +722,9 @@
             });
         }
 
+        
+        
+
         // Filtros
         $(document).ready(function() {
             $('#applyFilters').click(function() {
@@ -658,27 +737,11 @@
                 $('#searchName').val('');
             });
 
-            // Toggle del sidebar
-            $('#sidebarToggle').click(function() {
-                $('.sidebar').toggleClass('sidebar-collapsed');
-                $(this).find('i').toggleClass('bi-chevron-double-left bi-chevron-double-right');
-            });
-
-            // Cambiar tema
-            $('.theme-switcher').click(function() {
-                $('html').attr('data-bs-theme', 
-                    $('html').attr('data-bs-theme') === 'dark' ? 'light' : 'dark');
-                $(this).find('i').toggleClass('bi-moon-stars bi-sun');
-                
-            });
-
-            // Mobile sidebar toggle
-            $('#mobileSidebarToggle').click(function() {
-                $('.sidebar').toggleClass('sidebar-collapsed');
-            
               
-            });
+      
         });
+
+        
     </script>
 </body>
 </html>
