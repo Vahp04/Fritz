@@ -207,6 +207,14 @@
                            placeholder="Ingrese su contraseña">
                 </div>
                 
+                             <div class="mb-4">
+                    <label for="access_code" class="form-label">Código de acceso</label>
+                    <input type="password" style="text-align: center" name="access_code" id="accessCode" class="form-control" required 
+                           placeholder="Ingrese el código de acceso">
+                </div>
+                
+               
+                        
                 <div class="button-group">
                     <button type="submit" class="btn btn-fritz">INGRESAR AL SISTEMA</button>
                    
