@@ -11,12 +11,11 @@ class TipoEquipoController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+      public function index()
     {
-        $tiposEquipo = tipo_equipo::all();
+        $tiposEquipo = tipo_equipo::withCount('stockEquipo')->get();
         return view('tipo_equipo.tipo_equipo', compact('tiposEquipo'));
     }
-
     /**
      * Show the form for creating a new resource.
      */
@@ -28,7 +27,7 @@ class TipoEquipoController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|max:255|unique:tipo_equipos',
@@ -55,8 +54,9 @@ class TipoEquipoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(tipo_equipo $tipo_equipo)
+  public function show(tipo_equipo $tipo_equipo)
     {
+        $tipo_equipo->loadCount('stockEquipo');
         return view('tipo_equipo.show', compact('tipo_equipo'));
     }
 
@@ -71,7 +71,7 @@ class TipoEquipoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, tipo_equipo $tipo_equipo)
+       public function update(Request $request, tipo_equipo $tipo_equipo)
     {
         $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|max:255|unique:tipo_equipos,nombre,' . $tipo_equipo->id,
@@ -98,7 +98,7 @@ class TipoEquipoController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(tipo_equipo $tipo_equipo)
+       public function destroy(tipo_equipo $tipo_equipo)
     {
         // Verificar si hay stock_equipos relacionados antes de eliminar
         if ($tipo_equipo->stockEquipo()->count() > 0) {

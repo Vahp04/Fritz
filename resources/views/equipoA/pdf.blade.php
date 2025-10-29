@@ -25,12 +25,10 @@
         .header .subtitle {
             color: #666;
             font-size: 14px;
+            margin-top: 5px;
         }
         .info-section {
-            margin-bottom: 15px;
-            background: #f8f9fa;
-            padding: 10px;
-            border-radius: 5px;
+            margin-bottom: 20px;
         }
         .info-row {
             display: flex;
@@ -41,26 +39,29 @@
             font-weight: bold;
             color: #333;
         }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
+    
+      .stats-table {
+            width: 100%;
             margin-bottom: 15px;
+            border-collapse: collapse;
         }
-        .stat-card {
-            background: #e9ecef;
-            padding: 10px;
-            border-radius: 5px;
+        .stats-table td {
+            padding: 3px;
             text-align: center;
+            border: 1px solid #ddd;
+            vertical-align: middle;
         }
-        .stat-number {
+        .stats-number {
             font-size: 18px;
             font-weight: bold;
             color: #DC2626;
+            display: block;
         }
-        .stat-label {
+        .stats-label {
             font-size: 10px;
             color: #666;
+            display: block;
+            margin-top: 5px;
         }
         .table {
             width: 100%;
@@ -107,9 +108,10 @@
         }
         .summary {
             margin-top: 20px;
-            padding: 10px;
-            background: #e9ecef;
+            padding: 15px;
+            background: #f8f9fa;
             border-radius: 5px;
+            border: 1px solid #ddd;
         }
         .footer {
             margin-top: 20px;
@@ -131,6 +133,12 @@
         .obsoleto-row {
             background-color: #fff3cd !important;
         }
+        .distribution-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
     </style>
 </head>
 <body>
@@ -150,29 +158,31 @@
         </div>
     </div>
 
-    <!-- Estadísticas principales -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-number">{{ $asignacionesActivas }}</div>
-            <div class="stat-label">Activas</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">{{ $asignacionesDevueltas }}</div>
-            <div class="stat-label">Devueltas</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">{{ $asignacionesObsoletas }}</div>
-            <div class="stat-label">Obsoletas</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">{{ $totalAsignaciones }}</div>
-            <div class="stat-label">Total</div>
-        </div>
-    </div>
+    <!-- Estadísticas principales - Diseño tipo tabla -->
+    <table class="stats-table">
+        <tr>
+            <td>
+                <span class="stats-number">{{ $asignacionesActivas }}</span>
+                <span class="stats-label">Activas</span>
+            </td>
+            <td>
+                <span class="stats-number">{{ $asignacionesDevueltas }}</span>
+                <span class="stats-label">Devueltas</span>
+            </td>
+            <td>
+                <span class="stats-number">{{ $asignacionesObsoletas }}</span>
+                <span class="stats-label">Obsoletas</span>
+            </td>
+            <td>
+                <span class="stats-number">{{ $totalAsignaciones }}</span>
+                <span class="stats-label">Total</span>
+            </td>
+        </tr>
+    </table>
 
     <!-- Distribución por tipo de equipo -->
     <div class="summary">
-        <h4 style="margin: 0 0 10px 0;">Distribución por Tipo de Equipo</h4>
+        <div class="distribution-title">Distribución por Tipo de Equipo</div>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
             @foreach($asignacionesPorTipo as $tipo => $cantidad)
             <div style="background: white; padding: 8px; border-radius: 4px; border-left: 4px solid #DC2626;">

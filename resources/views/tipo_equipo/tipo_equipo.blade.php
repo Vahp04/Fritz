@@ -487,9 +487,9 @@
                                         </td>
                                         <td>
                                             <span class="badge stock-badge rounded-pill">
-                                                <i class="bi bi-box me-1"></i>
-                                                {{ $tipo->stockEquipo->count() ?? 0 }} Equipos
-                                            </span>
+    <i class="bi bi-box me-1"></i>
+    {{ $tipo->stock_equipo_count ?? 0 }} Equipos
+</span>
                                         </td>
                                         <td>
                                             {{ $tipo->created_at->format('d/m/Y') }}
@@ -695,9 +695,12 @@ function viewTipoEquipoData(tipo) {
     document.getElementById('view_nombre').textContent = tipo.nombre;
     document.getElementById('view_id').textContent = `ID: ${tipo.id}`;
     document.getElementById('view_tipo_id').textContent = tipo.id;
-    document.getElementById('view_descripcion').textContent = tipo.descripción || 'Sin descripción';
-    document.getElementById('view_stock_count').innerHTML = tipo.stock_equipo_count ? 
-        `<span class="badge stock-badge">${tipo.stock_equipo_count} Equipos</span>` : 
+    document.getElementById('view_descripcion').textContent = tipo.descripcion || 'Sin descripción';
+    
+    // Usar stock_equipo_count que viene del withCount
+    const stockCount = tipo.stock_equipo_count !== undefined ? tipo.stock_equipo_count : (tipo.stockEquipo ? tipo.stockEquipo.length : 0);
+    document.getElementById('view_stock_count').innerHTML = stockCount > 0 ? 
+        `<span class="badge stock-badge">${stockCount} Equipos</span>` : 
         '<span class="badge bg-secondary">0 Equipos</span>';
     
     // Mostrar información de requiere IP

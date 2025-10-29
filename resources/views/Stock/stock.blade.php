@@ -774,26 +774,26 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label class="form-label">Cantidad Total*</label>
-                                    <input type="number" class="form-control" name="cantidad_total" required min="0" id="cantidad_total">
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label class="form-label">Cantidad Disponible*</label>
-                                    <input type="number" class="form-control" name="cantidad_disponible" required min="0" id="cantidad_disponible">
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label class="form-label">Cantidad Asignada*</label>
-                                    <input type="number" class="form-control" name="cantidad_asignada" required min="0" id="cantidad_asignada" readonly>
-                                </div>
-                            </div>
-                        </div>
+<div class="row">
+    <div class="col-md-4">
+        <div class="mb-3">
+            <label class="form-label">Cantidad Total*</label>
+            <input type="number" class="form-control" name="cantidad_total" required min="0" id="cantidad_total" oninput="calcularCantidadesNuevo()">
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="mb-3">
+            <label class="form-label">Cantidad Disponible*</label>
+            <input type="number" class="form-control" name="cantidad_disponible" required min="0" id="cantidad_disponible" readonly>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="mb-3">
+            <label class="form-label">Cantidad Asignada*</label>
+            <input type="number" class="form-control" name="cantidad_asignada" required min="0" id="cantidad_asignada" value="0" readonly>
+        </div>
+    </div>
+</div>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
@@ -869,26 +869,26 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label class="form-label">Cantidad Total*</label>
-                                    <input type="number" class="form-control" name="cantidad_total" id="edit_cantidad_total" required min="0">
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label class="form-label">Cantidad Disponible*</label>
-                                    <input type="number" class="form-control" name="cantidad_disponible" id="edit_cantidad_disponible" required min="0">
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label class="form-label">Cantidad Asignada*</label>
-                                    <input type="number" class="form-control" name="cantidad_asignada" id="edit_cantidad_asignada" required min="0" readonly>
-                                </div>
-                            </div>
-                        </div>
+                       <div class="row">
+    <div class="col-md-4">
+        <div class="mb-3">
+            <label class="form-label">Cantidad Total*</label>
+            <input type="number" class="form-control" name="cantidad_total" id="edit_cantidad_total" required min="0" oninput="calcularCantidadesEdicion()">
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="mb-3">
+            <label class="form-label">Cantidad Disponible*</label>
+            <input type="number" class="form-control" name="cantidad_disponible" id="edit_cantidad_disponible" required min="0" readonly>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="mb-3">
+            <label class="form-label">Cantidad Asignada*</label>
+            <input type="number" class="form-control" name="cantidad_asignada" id="edit_cantidad_asignada" required min="0" readonly>
+        </div>
+    </div>
+</div>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
@@ -1014,20 +1014,54 @@
             document.getElementById('edit_cantidad_asignada').value = asignada >= 0 ? asignada : 0;
         }
 
+        // Función para calcular cantidades al crear nuevo equipo
+function calcularCantidadesNuevo() {
+    const cantidadTotal = parseInt(document.getElementById('cantidad_total').value) || 0;
+    
+    // Al crear nuevo, disponible = total y asignada = 0
+    document.getElementById('cantidad_disponible').value = cantidadTotal;
+    document.getElementById('cantidad_asignada').value = 0;
+}
+
+// Función para calcular cantidades al editar equipo
+function calcularCantidadesEdicion() {
+    const cantidadTotal = parseInt(document.getElementById('edit_cantidad_total').value) || 0;
+    const cantidadAsignadaActual = parseInt(document.getElementById('edit_cantidad_asignada').value) || 0;
+    
+    // Al editar, mantener la cantidad asignada actual y ajustar disponible
+    const nuevaDisponible = cantidadTotal - cantidadAsignadaActual;
+    
+    if (nuevaDisponible >= 0) {
+        document.getElementById('edit_cantidad_disponible').value = nuevaDisponible;
+    } else {
+        // Si la cantidad total es menor que la asignada, mostrar error
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'La cantidad total no puede ser menor que la cantidad asignada actual'
+        });
+        document.getElementById('edit_cantidad_total').value = cantidadTotal + cantidadAsignadaActual;
+        document.getElementById('edit_cantidad_disponible').value = 0;
+    }
+}
+
         // Función para cargar datos en el modal de edición
-        function loadStockEquipoData(equipo) {
-            document.getElementById('editStockEquipoForm').action = `/stock_equipos/${equipo.id}`;
-            document.getElementById('edit_tipo_equipo_id').value = equipo.tipo_equipo_id;
-            document.getElementById('edit_marca').value = equipo.marca;
-            document.getElementById('edit_modelo').value = equipo.modelo;
-            document.getElementById('edit_descripcion').value = equipo.descripcion || '';
-            document.getElementById('edit_cantidad_total').value = equipo.cantidad_total;
-            document.getElementById('edit_cantidad_disponible').value = equipo.cantidad_disponible;
-            document.getElementById('edit_cantidad_asignada').value = equipo.cantidad_asignada;
-            document.getElementById('edit_minimo_stock').value = equipo.minimo_stock;
-            document.getElementById('edit_fecha_adquisicion').value = equipo.fecha_adquisicion.split('T')[0];
-            document.getElementById('edit_valor_adquisicion').value = equipo.valor_adquisicion;
-        }
+function loadStockEquipoData(equipo) {
+    document.getElementById('editStockEquipoForm').action = `/stock_equipos/${equipo.id}`;
+    document.getElementById('edit_tipo_equipo_id').value = equipo.tipo_equipo_id;
+    document.getElementById('edit_marca').value = equipo.marca;
+    document.getElementById('edit_modelo').value = equipo.modelo;
+    document.getElementById('edit_descripcion').value = equipo.descripcion || '';
+    document.getElementById('edit_cantidad_total').value = equipo.cantidad_total;
+    document.getElementById('edit_cantidad_disponible').value = equipo.cantidad_disponible;
+    document.getElementById('edit_cantidad_asignada').value = equipo.cantidad_asignada;
+    document.getElementById('edit_minimo_stock').value = equipo.minimo_stock;
+    document.getElementById('edit_fecha_adquisicion').value = equipo.fecha_adquisicion.split('T')[0];
+    document.getElementById('edit_valor_adquisicion').value = equipo.valor_adquisicion;
+    
+    // Guardar la cantidad asignada original para validaciones
+    document.getElementById('edit_cantidad_asignada').setAttribute('data-original', equipo.cantidad_asignada);
+}
 
         // Función para cargar datos en el modal de visualización
         function viewStockEquipoData(equipo) {
@@ -1095,11 +1129,11 @@
         // Filtros y eventos
         $(document).ready(function() {
             // Eventos para calcular cantidades
-            $('#cantidad_total, #cantidad_disponible').on('input', calcularCantidadAsignada);
-            $('#edit_cantidad_total, #edit_cantidad_disponible').on('input', calcularCantidadAsignadaEdit);
+            $('#cantidad_total').on('input', calcularCantidadesNuevo);
+            $('#edit_cantidad_total').on('input', calcularCantidadesEdicion);
 
             // Inicializar cálculos
-            calcularCantidadAsignada();
+             calcularCantidadesNuevo();
 
 
             // Toggle del sidebar

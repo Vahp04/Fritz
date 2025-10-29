@@ -39,53 +39,61 @@ class StockEquiposController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'tipo_equipo_id' => 'required|exists:tipo_equipos,id',
-            'marca' => 'required|string|max:255',
-            'modelo' => 'required|string|max:255',
-            'descripcion' => 'nullable|string',
-            'cantidad_total' => 'required|integer|min:0',
-            'cantidad_disponible' => 'required|integer|min:0',
-            'cantidad_asignada' => 'required|integer|min:0',
-            'minimo_stock' => 'required|integer|min:0',
-            'fecha_adquisicion' => 'required|date',
-            'valor_adquisicion' => 'required|numeric|min:0',
-        ]);
+public function store(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'tipo_equipo_id' => 'required|exists:tipo_equipos,id',
+        'marca' => 'required|string|max:255',
+        'modelo' => 'required|string|max:255',
+        'descripcion' => 'nullable|string',
+        'cantidad_total' => 'required|integer|min:0',
+        'cantidad_disponible' => 'required|integer|min:0',
+        'cantidad_asignada' => 'required|integer|min:0',
+        'minimo_stock' => 'required|integer|min:0',
+        'fecha_adquisicion' => 'required|date',
+        'valor_adquisicion' => 'required|numeric|min:0',
+    ]);
 
-        // Validar que las cantidades sean consistentes
-        $validator->after(function ($validator) use ($request) {
-            $total = $request->cantidad_total;
-            $disponible = $request->cantidad_disponible;
-            $asignada = $request->cantidad_asignada;
+    // Validación personalizada para nuevo equipo
+    $validator->after(function ($validator) use ($request) {
+        $total = $request->cantidad_total;
+        $disponible = $request->cantidad_disponible;
+        $asignada = $request->cantidad_asignada;
 
-            if ($disponible + $asignada != $total) {
-                $validator->errors()->add(
-                    'cantidad_total', 
-                    'La suma de cantidad disponible y asignada debe ser igual a la cantidad total'
-                );
-            }
-
-            if ($disponible < 0 || $asignada < 0) {
-                $validator->errors()->add(
-                    'cantidad_disponible', 
-                    'Las cantidades no pueden ser negativas'
-                );
-            }
-        });
-
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
+        // Para nuevo equipo: disponible debe ser igual a total y asignada debe ser 0
+        if ($disponible != $total) {
+            $validator->errors()->add(
+                'cantidad_disponible', 
+                'Para un equipo nuevo, la cantidad disponible debe ser igual a la cantidad total'
+            );
         }
 
-        stock_equipos::create($request->all());
+        if ($asignada != 0) {
+            $validator->errors()->add(
+                'cantidad_asignada', 
+                'Para un equipo nuevo, la cantidad asignada debe ser 0'
+            );
+        }
 
-        return redirect()->route('stock_equipos.index')
-            ->with('success', 'Equipo en stock creado exitosamente.');
+        if ($total < 0) {
+            $validator->errors()->add(
+                'cantidad_total', 
+                'La cantidad total no puede ser negativa'
+            );
+        }
+    });
+
+    if ($validator->fails()) {
+        return redirect()->back()
+            ->withErrors($validator)
+            ->withInput();
     }
+
+    stock_equipos::create($request->all());
+
+    return redirect()->route('stock_equipos.index')
+        ->with('success', 'Equipo en stock creado exitosamente.');
+}
 
     /**
      * Show the form for editing the specified resource.
@@ -99,53 +107,70 @@ class StockEquiposController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, stock_equipos $stock_equipo)
-    {
-        $validator = Validator::make($request->all(), [
-            'tipo_equipo_id' => 'required|exists:tipo_equipos,id', 
-            'marca' => 'required|string|max:255',
-            'modelo' => 'required|string|max:255',
-            'descripcion' => 'nullable|string',
-            'cantidad_total' => 'required|integer|min:0',
-            'cantidad_disponible' => 'required|integer|min:0',
-            'cantidad_asignada' => 'required|integer|min:0',
-            'minimo_stock' => 'required|integer|min:0',
-            'fecha_adquisicion' => 'required|date',
-            'valor_adquisicion' => 'required|numeric|min:0',
-        ]);
+public function update(Request $request, stock_equipos $stock_equipo)
+{
+    $validator = Validator::make($request->all(), [
+        'tipo_equipo_id' => 'required|exists:tipo_equipos,id', 
+        'marca' => 'required|string|max:255',
+        'modelo' => 'required|string|max:255',
+        'descripcion' => 'nullable|string',
+        'cantidad_total' => 'required|integer|min:0',
+        'cantidad_disponible' => 'required|integer|min:0',
+        'cantidad_asignada' => 'required|integer|min:0',
+        'minimo_stock' => 'required|integer|min:0',
+        'fecha_adquisicion' => 'required|date',
+        'valor_adquisicion' => 'required|numeric|min:0',
+    ]);
 
-        // Validar que las cantidades sean consistentes
-        $validator->after(function ($validator) use ($request) {
-            $total = $request->cantidad_total;
-            $disponible = $request->cantidad_disponible;
-            $asignada = $request->cantidad_asignada;
+    // Validación personalizada para edición
+    $validator->after(function ($validator) use ($request, $stock_equipo) {
+        $total = $request->cantidad_total;
+        $disponible = $request->cantidad_disponible;
+        $asignada = $request->cantidad_asignada;
 
-            if ($disponible + $asignada != $total) {
-                $validator->errors()->add(
-                    'cantidad_total', 
-                    'La suma de cantidad disponible y asignada debe ser igual a la cantidad total'
-                );
-            }
-
-            if ($disponible < 0 || $asignada < 0) {
-                $validator->errors()->add(
-                    'cantidad_disponible', 
-                    'Las cantidades no pueden ser negativas'
-                );
-            }
-        });
-
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
+        // Verificar que la suma sea correcta
+        if ($disponible + $asignada != $total) {
+            $validator->errors()->add(
+                'cantidad_total', 
+                'La suma de cantidad disponible y asignada debe ser igual a la cantidad total'
+            );
         }
 
-        $stock_equipo->update($request->all());
+        // Verificar que no se reduzca la cantidad asignada por debajo de la actual
+        if ($asignada < $stock_equipo->cantidad_asignada) {
+            $validator->errors()->add(
+                'cantidad_asignada', 
+                'No puede reducir la cantidad asignada por debajo del valor actual (' . $stock_equipo->cantidad_asignada . ')'
+            );
+        }
 
-        return redirect()->route('stock_equipos.index')
-            ->with('success', 'Equipo en stock actualizado exitosamente.');
+        if ($disponible < 0 || $asignada < 0) {
+            $validator->errors()->add(
+                'cantidad_disponible', 
+                'Las cantidades no pueden ser negativas'
+            );
+        }
+
+        // Verificar que hay suficiente stock disponible para las asignaciones existentes
+        if ($disponible < 0) {
+            $validator->errors()->add(
+                'cantidad_disponible', 
+                'No hay suficiente stock disponible'
+            );
+        }
+    });
+
+    if ($validator->fails()) {
+        return redirect()->back()
+            ->withErrors($validator)
+            ->withInput();
     }
+
+    $stock_equipo->update($request->all());
+
+    return redirect()->route('stock_equipos.index')
+        ->with('success', 'Equipo en stock actualizado exitosamente.');
+}
 
     /**
      * Remove the specified resource from storage.
@@ -294,12 +319,14 @@ class StockEquiposController extends Controller
 /**
  * Generar PDF de stock de equipos 
  */
+/**
+ * Generar PDF de stock de equipos 
+ */
 public function generarPdfStock()
 {
     try {
         
         $stockEquipos = stock_equipos::with('tipoEquipo') 
-
                        ->orderBy('tipo_equipo_id')
                        ->orderBy('marca')
                        ->get();
@@ -308,7 +335,11 @@ public function generarPdfStock()
         $totalEquipos = $stockEquipos->sum('cantidad_total');
         $totalDisponible = $stockEquipos->sum('cantidad_disponible');
         $totalAsignado = $stockEquipos->sum('cantidad_asignada');
-        $valorTotal = $stockEquipos->sum('valor_adquisicion');
+        
+        // CORREGIR: Calcular valor total multiplicando valor_adquisicion por cantidad_total
+        $valorTotal = $stockEquipos->sum(function($equipo) {
+            return ($equipo->valor_adquisicion ?? 0) * ($equipo->cantidad_total ?? 0);
+        });
         
    
         $stockBajo = $stockEquipos->filter(function($equipo) {
@@ -368,7 +399,11 @@ public function verPdfStock()
         $totalEquipos = $stockEquipos->sum('cantidad_total');
         $totalDisponible = $stockEquipos->sum('cantidad_disponible');
         $totalAsignado = $stockEquipos->sum('cantidad_asignada');
-        $valorTotal = $stockEquipos->sum('valor_adquisicion');
+        
+        // CORREGIR: Calcular valor total multiplicando valor_adquisicion por cantidad_total
+        $valorTotal = $stockEquipos->sum(function($equipo) {
+            return ($equipo->valor_adquisicion ?? 0) * ($equipo->cantidad_total ?? 0);
+        });
         
        
         $stockBajo = $stockEquipos->filter(function($equipo) {
@@ -410,5 +445,4 @@ public function verPdfStock()
                        ->with('error', 'Error al cargar el PDF: ' . $e->getMessage());
     }
 }
-
 }

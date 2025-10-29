@@ -25,12 +25,10 @@
         .header .subtitle {
             color: #666;
             font-size: 14px;
+            margin-top: 5px;
         }
         .info-section {
-            margin-bottom: 15px;
-            background: #f8f9fa;
-            padding: 10px;
-            border-radius: 5px;
+            margin-bottom: 20px;
         }
         .info-row {
             display: flex;
@@ -41,26 +39,29 @@
             font-weight: bold;
             color: #333;
         }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+   
+        .stats-table {
+            width: 100%;
             margin-bottom: 15px;
+            border-collapse: collapse;
         }
-        .stat-card {
-            background: #e9ecef;
-            padding: 10px;
-            border-radius: 5px;
+        .stats-table td {
+            padding: 3px;
             text-align: center;
+            border: 1px solid #ddd;
+            vertical-align: middle;
         }
-        .stat-number {
+        .stats-number {
             font-size: 18px;
             font-weight: bold;
             color: #DC2626;
+            display: block;
         }
-        .stat-label {
+        .stats-label {
             font-size: 10px;
             color: #666;
+            display: block;
+            margin-top: 5px;
         }
         .table {
             width: 100%;
@@ -97,15 +98,20 @@
             background-color: #fff3cd;
             color: #856404;
         }
+        .badge-secondary {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
         .badge-danger {
             background-color: #f8d7da;
             color: #721c24;
         }
         .summary {
             margin-top: 20px;
-            padding: 10px;
-            background: #e9ecef;
+            padding: 15px;
+            background: #f8f9fa;
             border-radius: 5px;
+            border: 1px solid #ddd;
         }
         .footer {
             margin-top: 20px;
@@ -118,14 +124,20 @@
         .text-center {
             text-align: center;
         }
-        .text-right {
-            text-align: right;
+        .activo-row {
+            background-color: #d4edda !important;
         }
-        .stock-bajo {
+        .devuelto-row {
+            background-color: #d1ecf1 !important;
+        }
+        .obsoleto-row {
             background-color: #fff3cd !important;
         }
-        .page-break {
-            page-break-after: always;
+        .distribution-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
         }
     </style>
 </head>
@@ -146,29 +158,31 @@
         </div>
     </div>
 
-    <!-- Estadísticas principales -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-number">{{ number_format($totalEquipos) }}</div>
-            <div class="stat-label">Total de Equipos</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">{{ number_format($totalDisponible) }}</div>
-            <div class="stat-label">Disponibles</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">{{ number_format($totalAsignado) }}</div>
-            <div class="stat-label">Asignados</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">{{ number_format($stockBajoCount) }}</div>
-            <div class="stat-label">Stock Bajo</div>
-        </div>
-    </div>
+
+    <table class="stats-table">
+        <tr>
+            <td>
+                <span class="stats-number">{{ number_format($totalEquipos) }}</span>
+                <span class="stats-label">Total de Equipos</span>
+            </td>
+            <td>
+                <span class="stats-number">{{ number_format($totalDisponible) }}</span>
+                <span class="stats-label">Disponibles</span>
+            </td>
+            <td>
+                <span class="stats-number">{{ number_format($totalAsignado) }}</span>
+                <span class="stats-label">Asignados</span>
+            </td>
+            <td>
+                <span class="stats-number">{{ number_format($stockBajoCount) }}</span>
+                <span class="stats-label">Stock Bajo</span>
+            </td>
+        </tr>
+    </table>
 
     <!-- Distribución por tipo -->
     <div class="summary">
-        <h4 style="margin: 0 0 10px 0;">Distribución por Tipo de Equipo</h4>
+        <div class="distribution-title">Distribución por Tipo de Equipo</div>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
             @foreach($equiposPorTipo as $tipo => $cantidad)
             <div style="background: white; padding: 8px; border-radius: 4px; border-left: 4px solid #DC2626;">
