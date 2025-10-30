@@ -695,11 +695,21 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Cargo</label>
-                                    <input type="text" class="form-control" name="cargo" required placeholder="Ingrese el cargo">
-                                </div>
-                            </div>
+    <div class="mb-3">
+        <label class="form-label">Cargo*</label>
+        <select class="form-select" name="cargo" id="create_cargo" required> <!-- Cambiado de edit_cargo a create_cargo -->
+            <option value="">Seleccione un cargo</option>
+            <option value="Jefe">Jefe</option>
+            <option value="Analista">Analista</option>
+            <option value="Especialista">Especialista</option>
+            <option value="Becario">Becario</option>
+            <option value="Pasante">Pasante</option>
+            <option value="Coordinador">Coordinador</option>
+            <option value="Supervisor">Supervisor</option>
+        </select>
+        <small class="text-muted">Seleccione el cargo del usuario</small>
+    </div>
+</div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Correo Electrónico*</label>
@@ -773,11 +783,21 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Cargo*</label>
-                                    <input type="text" class="form-control" name="cargo" id="edit_cargo" required>
-                                </div>
+                            <div class="mb-3">
+                                <label class="form-label">Cargo*</label>
+                                <select class="form-select" name="cargo" id="edit_cargo" required>
+                                    <option value="">Seleccione un cargo</option>
+                                    <option value="Jefe">Jefe</option>
+                                    <option value="Analista">Analista</option>
+                                    <option value="Especialista">Especialista</option>
+                                    <option value="Becario">Becario</option>
+                                    <option value="Pasante">Pasante</option>
+                                    <option value="Coordinador">Coordinador</option>
+                                    <option value="Supervisor">Supervisor</option>
+                                </select>
+                                <small class="text-muted">Seleccione el cargo del usuario</small>
                             </div>
+                        </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Correo Electrónico*</label>
@@ -892,7 +912,14 @@
             document.getElementById('editUsuarioForm').action = `/usuarios/${usuario.id}`;
             document.getElementById('edit_nombre').value = usuario.nombre;
             document.getElementById('edit_apellido').value = usuario.apellido;
-            document.getElementById('edit_cargo').value = usuario.cargo;
+                  // Actualizar el select de cargo - usar el ID correcto
+        const cargoSelect = document.getElementById('edit_cargo');
+        if (cargoSelect) {
+            cargoSelect.value = usuario.cargo || '';
+            console.log('Cargo seleccionado:', usuario.cargo); // Para debug
+        } else {
+            console.error('No se encontró el select edit_cargo');
+        }
             document.getElementById('edit_correo').value = usuario.correo;
             document.getElementById('edit_rdp').value = usuario.RDP;
             document.getElementById('edit_sede_id').value = usuario.sede_id;
